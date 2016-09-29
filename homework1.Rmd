@@ -1,0 +1,156 @@
+---
+title: "Akshay Jagadeesh, Homework 1"
+output:
+  html_document:
+    highlight: pygments
+    theme: flatly
+    toc: yes
+---
+
+Load packages you'll be using throughout the HW
+
+```{r}
+library(ggplot2)
+```
+
+Question 1
+-----------------------------------------
+
+### Q1 Part A
+
+```{r 1a}
+d0 = c(26, 31, 45)
+rs1 = chisq.test(d0, p=c(1, 1, 1), rescale.p=T, simulate.p.value=F)
+print(rs1)
+```
+
+### Q1 Part B-i
+
+```{r 1b_i}
+deaths = c(11, 15, 15, 16, 25, 20)
+mean_deaths = mean(deaths)
+sd_deaths = sd(deaths)
+var_deaths = var(deaths)
+print(mean_deaths)
+print(sd_deaths)
+print(var_deaths)
+```
+
+The mean of this sample is `r mean_deaths`, indicating that from 1990 to 1995, `r mean_deaths` juveniles died from maltreatment on average yearly. The standard deviation of these juvenile maltreatment deaths was `r sd_deaths`, and the variance of this sample was `r var_deaths`.
+
+### Q1 Part B-ii
+
+```{r 1b_ii}
+se_deaths = sd_deaths / sqrt(length(deaths))
+print(se_deaths)
+```
+
+The standard error of this sample of juvenile deaths from 1990 to 1995 is `r se_deaths`.
+
+### Q1 Part B-iii
+
+Assuming no trend and  $\bar{x}$ = `r mean_deaths`, we derive the algebraic expression for the estimated number of deaths, *T*, over *k* years by the equation:
+
+T = `r mean_deaths` * k
+
+This is a linear function of $\bar{x}$, which assumes that on average `r mean_deaths` juveniles die of maltreatment each year, so after *k* years, we estimate that the total number of juvenile deaths (T) will equal `r mean_deaths`*k*.
+
+### Q1 Part B-iv
+
+The standard deviation of T will be equal to *k* times the standard deviation of $\bar{x}$.
+
+sd(T) = k * sd(\bar{x}) = k * SE(x) = k * `r se_deaths`
+
+### Q1 Part B-v
+
+```{r 1b_v}
+deathDF = rbind(c(1,2,3,4,5,6), deaths)
+ggplot(deathDF, aes(x=x, y=deaths)) + 
+  geom_point()
+ggplot(all_years, aes(length, fill = NumberYears)) + 
+  geom_histogram(aes(y = ..density..),
+                 alpha = 0.5,
+                 colour = "darkgray",
+                 position = 'identity')
+```
+
+Question 2
+-----------------------------------------
+
+
+Question 9
+-----------------------------------------
+
+### Q9 Part A
+
+First, we calculated the mean of the non-normal distribution `D0`. 
+  
+```{r 9a_D0 mean}
+x0 = c(1:3, 5, 7, 9)
+p0 = c(.2, .4, .24, .10, .05, .01)
+mu0 = sum(x0 * p0) / sum(p0)
+print(mu0)
+```
+
+The mean of `D0` is 2.66.
+
+**Instructor's Note:** You could also write your narrative text as follows, which will ensure that the number you report is always in sync with the code you wrote. This is a bit more complex, but recommended:
+
+The mean of `D0` is `r mu0`.
+
+
+### Q9 Part B 
+
+Next, we drew a sample of 1000 observations from the skewed distribution `x0`.
+  
+```{r 9b_x0_sample}
+o1 = sample(x0, 1000, replace=T, prob = p0)
+```
+
+Then, we made a histogram of `x0` along with the estimated probability density function.
+
+```{r 9b_histogram, fig.width=7, fig.height=6}
+df = data.frame(observations=o1)
+
+ggplot(df, aes(x=observations)) +
+  geom_histogram(aes(y=..density..), #..density.. normalizes the y axis to the density (i.e. counts / total)
+                 color='black',
+                 fill='white',
+                 binwidth=1,
+                 breaks=c(0.5:9.5)) + # see ?geom_histogram for details
+  geom_density(alpha=0.2,
+               fill='orange',
+               adjust=3) +
+  theme_bw()
+
+## If you prefer plotting without ggplot, you can use this code:
+
+# rs1 = hist(o1, prob=T, main='Sampling distribution of x0, 1000 Samples')
+# lines(density(o1, adjust=3))
+```
+
+
+Question 10: (example stats writeup)
+-----------------------------------------
+
+Here we have some data (`x0`) about the demographics of participants in our experiment. We also have some data (`p0`) about the distribution of races in the United States. 
+
+We want to know whether the distribution of races in our data is consistent with the specified US distribution.
+  
+```{r 10_create_data}
+x0 = c(white=273, black=40, asian=10, other=5)
+p0 = c(white=.77, black=.13, asian=.054, other=0.046)
+
+# calculate proportions in sample
+x0/sum(x0)
+```
+
+#### Conduct a chi-squared test
+```{r}
+rs = chisq.test(x0, p=p0)
+rs
+
+rs$expected
+```
+
+Running a $X^2$ goodness-of-fit test, we see that we reject the null hypothesis that the distribution of races in our data is consistent with the US distribution, $X^2$ (`r rs$parameter`, N=`r sum(rs$observed)`) =`r rs$statistic`, p = `r rs$p.value`. Thus, it appears that our data is not consistent with the US distribution. Specifically, we have more white participants than we would have expected (273 (~83%), relative to 253 if 77% of our participants were white), and we have fewer asian and other participants than would have been expected (approximately 10 fewer, off by about 3%). Perhaps we sampled from a college that had a larger proportion of white students relative to the US population, and as a result our sample was biased.

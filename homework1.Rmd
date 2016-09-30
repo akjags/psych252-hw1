@@ -64,19 +64,30 @@ sd(T) = k * sd(\bar{x}) = k * SE(x) = k * `r se_deaths`
 ### Q1 Part B-v
 
 ```{r 1b_v}
-deathDF = rbind(c(1,2,3,4,5,6), deaths)
-ggplot(deathDF, aes(x=x, y=deaths)) + 
-  geom_point()
-ggplot(all_years, aes(length, fill = NumberYears)) + 
-  geom_histogram(aes(y = ..density..),
-                 alpha = 0.5,
-                 colour = "darkgray",
-                 position = 'identity')
+deathDF = data.frame(years=c(1990,1991,1992,1993,1994,1995), deaths)
+ggplot(deathDF, aes(x=years, y=deaths)) + 
+  geom_point() + geom_smooth(method=lm, colour="red") +
+  geom_smooth(method=loess, colour="blue")
 ```
+The red line is the linear regression fit of the data, and the blue line is the Loess curve.
 
 Question 2
 -----------------------------------------
 
+### Q2 Part A
+
+```{r 2a}
+earlyDeaths = read.csv("earlydeaths.csv")
+deathTab <- table(factor(earlyDeaths$cause), factor(earlyDeaths$time))
+deathTab <- cbind(deathTab, Total = rowSums(deathTab))
+deathTab <- rbind(deathTab, Total = colSums(deathTab))
+deathTab
+```
+
+### Q2 Part B
+
+
+### Q2 Part C
 
 Question 9
 -----------------------------------------
